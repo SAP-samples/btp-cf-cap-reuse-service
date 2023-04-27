@@ -1,0 +1,33 @@
+<mvc:View 
+    controllerName="com.sap.demo.ui.saas.controller.MainView" 
+    xmlns:core="sap.ui.core"
+    xmlns="sap.m" 
+    xmlns:mvc="sap.ui.core.mvc" 
+    displayBlock="true">
+    <Page id="page" title="{i18n>title}">
+        <content>
+            <Panel width="auto" class="sapUiResponsiveMargin">
+                <headerToolbar>
+                    <OverflowToolbar>
+                        <Title text="Local User Interface"/>
+                    </OverflowToolbar>
+                </headerToolbar>
+                <content>
+                   <Select
+					forceSelection="false"
+					items="{ path: 'viewModel>/items' }"
+                    selectedKey="{viewModel>/selectedKey}">
+					<core:Item key="{viewModel>Key}" text="{viewModel>Name}" />
+				</Select>
+                </content>
+            </Panel>
+            <core:ComponentContainer 
+                id="sampleView-container" 
+                usage="comsapdemouireuse" 
+                height="100%" 
+                async="false" 
+                propagateModel="true"
+                manifest="true"/>
+        </content>
+    </Page>
+</mvc:View>

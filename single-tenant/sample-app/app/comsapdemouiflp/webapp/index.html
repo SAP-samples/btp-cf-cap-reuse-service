@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mock Launchpad</title>
+
+  <script id="sap-ui-flpconfig"> 
+    window["sap-ushell-config"] = {
+      defaultRenderer: "fiori2",
+      renderers: {
+        fiori2: {
+          componentData: {
+            config: {
+              search: "hidden",
+            },
+          },
+        },
+      },
+      services: {
+        LaunchPage: {
+          adapter: {
+            config: {
+              catalogs: [],
+              groups: [
+                {
+                  id: "MyHome",
+                  title: "My Home",
+                  isPreset: false,
+                  isVisible: true,
+                  isGroupLocked: false,
+                  tiles: []
+                },
+                {
+                  id: "Reuse",
+                  title: "Reuse",
+                  isPreset: false,
+                  isVisible: true,
+                  isGroupLocked: false,
+                  tiles: [
+                    {
+                      id: "ReuseSample",
+                      tileType: "sap.ushell.ui.tile.StaticTile",
+                      properties: {
+                        title: "Reuse Sample",
+                        targetURL: "#Reuse-sample",
+                        icon: "sap-icon://collaborate"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        NavTargetResolution: {
+          config: {
+            enableClientSideTargetResolution: true
+          }
+        },
+        ClientSideTargetResolution: {
+          adapter: {
+            config: {
+              inbounds: {
+                ReuseSample: {
+                  semanticObject: "Reuse",
+                  action: "sample",
+                  title: "Reuse Sample",
+                  signature: {
+                    parameters: {},
+                    additionalParameters: "allowed"
+                  },
+                  navigationMode: "embedded",
+                  resolutionResult: {
+                    applicationType: "SAPUI5",
+                    additionalInformation: "SAPUI5.Component=com.sap.demo.ui",
+                    url: "/comsapdemoui/"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <script 
+    id="sap-ui-bootstrap" 
+    src="https://ui5.sap.com/resources/sap-ui-core.js"
+    data-sap-ui-libs="sap.m, sap.ushell, sap.ui.layout" 
+    data-sap-ui-theme="sap_fiori_3" 
+    data-sap-ui-compatVersion="edge"
+    data-sap-ui-async="true" 
+    data-sap-ui-frameOptions="trusted"
+    data-sap-ui-oninit="startFlp"
+  ></script>
+  <script id="sap-ui-flpstart">
+    function startFlp() {
+      sap.ui.require(["sap/ushell/services/Container"], function () {
+        sap.ushell.bootstrap("local").then(function () {
+          sap.ushell.Container.createRenderer('fiori2', true).then(
+            function(oRenderer){ oRenderer.placeAt("content") }
+          );
+        });
+      });
+    }
+  </script>
+
+</head>
+<body class="sapUiBody" id="content"></body>
+</html>

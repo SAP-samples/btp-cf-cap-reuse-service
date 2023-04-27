@@ -1,0 +1,27 @@
+{
+  "services": [
+    {
+      "name": "comsapdemoreuse",
+      "description": "Demo Reuse Service",
+      "tags": [
+        "comsapdemoreuse"
+      ],
+      "bindable": true,
+      "metadata": {
+        "displayName": "Demo Reuse Service",
+        "longDescription": "Demo Reuse Service",
+        "providerDisplayName": "SAP",
+        "sapservice": {
+          "sap.cloud.service": "com.sap.demo.reuse"
+        }
+      },
+      "plan_updateable": true,
+      "plans": [
+        {
+          "name": "standard",
+          "description": "Standard"
+        }
+      ]
+    }
+  ]
+}

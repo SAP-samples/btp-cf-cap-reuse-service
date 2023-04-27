@@ -1,0 +1,61 @@
+{
+    "tenant-mode": "dedicated",
+    "authorities": [
+        "$XSAPPNAME.Admin",
+        "$XSAPPNAME.User"
+    ],
+    "scopes": [
+        {
+            "name": "uaa.user",
+            "description": "UAA"
+        },
+        {
+            "name": "$XSAPPNAME.User",
+            "description": "Reuse User"
+        },
+        {
+            "name": "$XSAPPNAME.Admin",
+            "description": "Reuse Administrator"
+        }
+    ],
+    "role-templates": [
+        {
+            "name": "Token_Exchange",
+            "description": "Token Exchange",
+            "scope-references": [ "uaa.user" ]
+        },
+        {
+            "name": "User",
+            "description": "Reuse User",
+            "scope-references": [ "$XSAPPNAME.User" ]
+        },
+        {
+            "name": "Admin",
+            "description": "Reuse Administrator",
+            "scope-references": [ "$XSAPPNAME.Admin" ]
+        }
+    ],
+    "oauth2-configuration": {
+        "token-validity": 3600,
+        "redirect-uris": [
+            "http://localhost:5000",
+            "http://*.localhost:5000/**",
+            "http*://*.cfapps.*.hana.ondemand.com/**"
+        ],
+        "grant-types": [
+            "client_x509",
+            "client_credentials",
+            "authorization_code",
+            "user_token",
+            "password",
+            "refresh_token",
+            "urn:ietf:params:oauth:grant-type:saml2-bearer",
+            "urn:ietf:params:oauth:grant-type:jwt-bearer"
+        ],
+        "credential-types": [
+            "binding-secret",
+            "instance-secret",
+            "x509"
+        ]
+    }
+}

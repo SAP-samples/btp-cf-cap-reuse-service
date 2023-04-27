@@ -1,0 +1,234 @@
+ID: com.sap.demo.saas
+version: 0.0.1
+_schema-version: "3.1"
+provider: SAP
+
+parameters:
+  deploy_mode: html5-repo
+  enable-parallel-deployments: true
+
+build-parameters:
+  before-all:
+    - builder: custom
+      commands:
+        - npx -p @sap/cds-dk cds build --profile production
+
+modules:
+  # --------------------- APPROUTER MODULE ---------------------
+  - name: demo-saas
+  # ------------------------------------------------------------
+    type: approuter.nodejs
+    path: app/approuter
+    build-parameters:
+      builder: npm-ci
+      ignore: [ 'node_modules/', 'default-env.json', 'manifest*.yml']
+    parameters:
+      disk-quota: 256MB
+      memory: 128MB
+      app-name: demo-saas-${space}
+      app-domain: ${app-name}.${default-domain}
+      keep-existing-routes: true
+    properties:
+      TENANT_HOST_PATTERN: '^(.*)-${app-domain}'
+    requires:
+      - name: demo-saas-destination
+      - name: demo-saas-html5-repo-runtime
+      - name: demo-saas-uaa
+      - name: demo-saas-srv-api
+      - name: demo-saas-reuse-service
+    provides:
+      - name: demo-saas-approuter
+        properties:
+           app-url: ${default-url}
+           application: ${app-name}
+           app-domain: ${app-domain}
+
+
+  # --------------------- WEBAPP DEPLOYER ----------------------
+  - name: demo-saas-app-deployer
+  # ------------------------------------------------------------
+    type: com.sap.application.content
+    path: app/ui_deployer
+    requires:
+      - name: demo-saas-html5-repo-host
+        parameters:
+          content-target: true
+    build-parameters:
+      build-result: resources
+      requires:
+      - name: comsapdemouisaas
+        target-path: resources/
+        artifacts:
+        - comsapdemouisaas.zip
+      - name: comsapdemouiflp
+        target-path: resources/
+        artifacts:
+        - comsapdemouiflp.zip
+
+
+  # --------------------- UI MODULES ---------------------------
+  #
+  # ------------------------------------------------------------
+  - name: comsapdemouisaas
+    type: html5
+    path: app/comsapdemouisaas
+    build-parameters:
+      build-result: dist
+      builder: custom
+      ignore: [ 'node_modules/',  'default-env.json', 'manifest*.yml' ]
+      commands:
+      - npm ci
+      - npm run build:cf
+      supported-platforms: []
+
+  - name: comsapdemouiflp
+    type: html5
+    path: app/comsapdemouiflp
+    build-parameters:
+      build-result: dist
+      builder: custom
+      ignore: [ 'node_modules/',  'default-env.json', 'manifest*.yml' ]
+      commands:
+      - npm ci
+      - npm run build:cf
+      supported-platforms: []
+
+
+  # --------------------- SERVER MODULE ------------------------
+  - name: demo-saas-srv
+  # ------------------------------------------------------------
+    type: nodejs
+    path: gen/srv
+    build-parameters:
+      builder: npm-ci
+      ignore: ['node_modules/', 'default-*.json', 'manifest*.yml']
+    parameters:
+      app-name: demo-saas-srv-${space}
+      memory: 256MB
+      disk-quota: 1024MB
+    properties:
+      appDomain: ~{demo-saas-approuter/app-domain}
+      appName: ~{demo-saas-approuter/application}
+    requires:
+      - name: demo-saas-uaa
+      - name: demo-saas-registry
+      - name: demo-saas-destination
+      - name: demo-saas-html5-repo-runtime
+      - name: demo-saas-approuter
+    provides:
+      - name: demo-saas-srv-api
+        properties:
+          srv-url: ${default-url}
+
+resources:
+  # ----------------------- UAA SERVICE ------------------------
+  - name: demo-saas-uaa
+  # ------------------------------------------------------------
+    type: org.cloudfoundry.managed-service
+    requires:
+      - name: demo-saas-approuter
+    properties:
+      XSAPPNAME: ${xsuaa-app}
+    parameters:
+      service: xsuaa
+      service-name: ${space}-demo-saas-uaa
+      service-plan: application
+      path: xs-security.json
+      xsuaa-app: ~{demo-saas-approuter/application}
+      config:
+        xsappname: ${xsuaa-app}
+        role-collections:
+          - name: Demo SaaS Member (${space}) 
+            description: Member Access
+            role-template-references: 
+              - '$XSAPPNAME.Member'
+              - '$XSAPPNAME.Token_Exchange'
+          - name: Demo SaaS Administrator (${space})
+            description: Administrator Access
+            role-template-references: 
+              - '$XSAPPNAME.Admin'
+              - '$XSAPPNAME.Token_Exchange'
+
+
+  # --------------------- REGISTRY SERVICE ---------------------
+  - name: demo-saas-registry
+  # ------------------------------------------------------------
+    type: org.cloudfoundry.managed-service
+    requires:
+      - name: demo-saas-uaa
+      - name: demo-saas-srv-api
+      - name: demo-saas-approuter
+    parameters:
+      service: saas-registry
+      service-name: ${space}-demo-saas-registry
+      service-plan: application
+      config:
+        xsappname: ~{demo-saas-uaa/XSAPPNAME}
+        appName: ~{demo-saas-approuter/application}-${org}
+        displayName: Demo SaaS Application
+        description: Demo SaaS Application
+        category: Demo Multitenant Apps
+        appUrls:
+          onSubscription: ~{demo-saas-srv-api/srv-url}/-/cds/saas-provisioning/tenant/{tenantId}
+          onSubscriptionAsync: false
+          onUnSubscriptionAsync: false
+          getDependencies: ~{demo-saas-srv-api/srv-url}/-/cds/saas-provisioning/dependencies
+        appPlans:
+          - name: default
+            description: Default Plan
+
+
+  # ----------------- DESTINATION SERVICE ----------------------
+  - name: demo-saas-destination
+  # ------------------------------------------------------------
+    type: org.cloudfoundry.managed-service
+    requires:
+      - name: demo-saas-srv-api
+    parameters:
+      service-plan: lite
+      service-name: ${space}-demo-saas-destination
+      service: destination
+      config:
+        HTML5Runtime_enabled: true
+        version: 1.0.0
+        init_data:
+          instance:
+            existing_destinations_policy: update
+            destinations:
+              - Name: DEMO_SAAS_NORTHWIND
+                Description: Demo SaaS Northwind
+                URL: https://services.odata.org/v4/Northwind/Northwind.svc
+                Type: HTTP
+                ProxyType: Internet
+                Authentication: NoAuthentication
+                HTML5.DynamicDestination: true
+              
+
+  # ------------- HTML REPO HOST SERVICE (Be Used by UI) ------------
+  - name: demo-saas-html5-repo-host
+  # -----------------------------------------------------------------
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service-plan: app-host
+      service-name: ${space}-demo-saas-html5-repo-host
+      service: html5-apps-repo
+
+
+  # ---------- HTML REPO RUNTIME SERVICE (Be Used by UI) -------------
+  - name: demo-saas-html5-repo-runtime
+  # ------------------------------------------------------------------
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service-plan: app-runtime
+      service-name: ${space}-demo-saas-html5-repo-runtime
+      service: html5-apps-repo
+
+
+  # ----------------- REUSE SERVICE ----------------------------------
+  - name: demo-saas-reuse-service
+  # ------------------------------------------------------------------
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service-plan: standard
+      service-name: ${space}-demo-saas-reuse-service
+      service: comsapdemoreuse

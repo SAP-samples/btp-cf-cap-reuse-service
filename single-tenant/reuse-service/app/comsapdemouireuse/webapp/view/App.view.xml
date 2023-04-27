@@ -1,0 +1,72 @@
+<mvc:View 
+    controllerName="com.sap.demo.ui.reuse.controller.App" 
+    xmlns:mvc="sap.ui.core.mvc" 
+    displayBlock="true" 
+    xmlns="sap.m" 
+    xmlns:core="sap.ui.core" 
+    xmlns:f="sap.ui.layout.form"
+    width="100%"
+    xmlns:html="http://www.w3.org/1999/xhtml" >
+    <App id="app">
+        <pages>
+            <Page enableScrolling="false" showHeader="false" id="page">
+                <content>
+                    <Panel width="auto" class="sapUiResponsiveMargin">
+                        <headerToolbar>
+                            <OverflowToolbar>
+                                <Title text="Reuse Service - Sample Data"/>
+                            </OverflowToolbar>
+                        </headerToolbar>
+                        <content>
+                            <List id="list" items="{ path: '/Books', templateShareable: false }" >
+                                <items>
+                                    <StandardListItem title="{title}"/>
+                                </items>
+                            </List>
+                        </content>
+                    </Panel>
+                    <Panel width="auto" class="sapUiResponsiveMargin">
+                        <headerToolbar>
+                            <OverflowToolbar>
+                                <Title text="Reuse Service - User Details"/>
+                            </OverflowToolbar>
+                        </headerToolbar>
+                        <content>
+                            <VBox class="sapUiSmallMargin">
+                                <f:SimpleForm 
+                                    editable="false"
+                                    layout="ResponsiveGridLayout"
+                                    singleContainerFullSize="false"
+                                    adjustLabelSpan="false"
+                                    labelSpanXL="3" labelSpanL="3" labelSpanM="3" labelSpanS="12"
+                                    emptySpanXL="4" emptySpanL="4" emptySpanM="4" emptySpanS="0"
+                                    columnsXL="1" columnsL="1" columnsM="1">
+                                    <f:content>
+                                        <Label text="User Id" />
+                                        <Text text="{userModel>/id}" />
+                                        <Label text="Tenant" />
+                                        <Text text="{userModel>/tenant}" />
+                                        <Label text="Admin" />
+                                        <Text text="{userModel>/roles/admin}" />
+                                        <Label text="User" />
+                                        <Text text="{userModel>/roles/user}" />
+                                    </f:content>
+                                </f:SimpleForm>
+                            </VBox>
+                        </content>
+                    </Panel>
+                    <Panel width="auto" class="sapUiResponsiveMargin">
+                        <headerToolbar>
+                            <OverflowToolbar>
+                                <Title text="Reuse Service - iFrame"/>
+                            </OverflowToolbar>
+                        </headerToolbar>
+                        <content>
+                            <html:iframe width="560" height="315"  src="https://www.youtube.com/embed/OQVUkCs7mzY" frameborder="0" allowfullscreen="true" />
+                        </content>
+                    </Panel>
+                </content>
+            </Page>
+        </pages>
+    </App>
+</mvc:View>

@@ -1,0 +1,29 @@
+{
+  "services": [
+    {
+      "id": "6b11fa10-6b45-46d8-91ea-e014bcca5277",
+      "name": "comsapdemoreuse",
+      "description": "Demo Reuse Service",
+      "tags": [
+        "comsapdemoreuse"
+      ],
+      "bindable": true,
+      "metadata": {
+        "displayName": "Demo Reuse Service",
+        "longDescription": "Demo Reuse Service",
+        "providerDisplayName": "SAP",
+        "sapservice": {
+          "sap.cloud.service": "com.sap.demo.reuse"
+        }
+      },
+      "plan_updateable": true,
+      "plans": [
+        {
+          "name": "standard",
+          "description": "Standard",
+          "id": "b87936fb-ff36-476f-9d7c-36d6085ea439"
+        }
+      ]
+    }
+  ]
+}

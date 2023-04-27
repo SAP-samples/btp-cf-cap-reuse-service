@@ -1,0 +1,143 @@
+ID: com.sap.demo.reuse
+version: 0.0.1
+_schema-version: "3.1"
+provider: SAP
+
+parameters:
+  deploy_mode: html5-repo
+  enable-parallel-deployments: true
+
+build-parameters:
+  before-all:
+    - builder: custom
+      commands:
+        - npx -p @sap/cds-dk cds build --profile production
+  
+modules:  
+  # ----------------------- SERVER MODULE ----------------------
+  - name: demo-broker-srv
+  # ------------------------------------------------------------
+    type: nodejs
+    path: gen/srv
+    build-parameters:
+      builder: npm-ci
+      ignore: ['node_modules/', 'default-*.json', 'manifest*.yml']
+    parameters:
+      memory: 256MB
+      disk-quota: 512MB
+    requires:
+      - name: demo-broker-uaa
+    provides:
+      - name: demo-broker-srv-api
+        properties:
+          srv-url: ${default-url}
+
+
+  # --------------------- WEBAPP DEPLOYER ----------------------
+  - name: demo-broker-app-deployer
+  # ------------------------------------------------------------
+    type: com.sap.application.content
+    path: app/ui_deployer
+    parameters:
+      no-route: true
+      memory: 256M
+      disk: 128M
+    build-parameters:
+      build-result: resources
+      requires:
+        - name: comsapdemouireuse
+          target-path: resources/
+          artifacts:
+          - comsapdemouireuse.zip
+    requires:
+      - name: demo-broker-html5-repo-host
+        parameters:
+          content-target: true
+
+
+  # --------------------- UI MODULES ----------------------------
+  #
+  # ------------------------------------------------------------
+  - name: comsapdemouireuse
+    type: html5
+    path: app/comsapdemouireuse
+    build-parameters:
+      build-result: dist
+      builder: custom
+      ignore: [ 'node_modules/',  'default-env.json', 'manifest*.yml' ]
+      commands:
+        - npm ci
+        - npm run build:cf
+      supported-platforms: []
+
+
+  # --------------------- BROKER MODULE ------------------------
+  - name: demo-broker-sbf
+  # ------------------------------------------------------------
+    type: nodejs
+    path: broker
+    build-parameters:
+      builder: npm-ci
+      ignore: ['node_modules/', 'default-*.json', 'manifest*.yml']
+    parameters:
+      memory: 128M
+      disk: 512MB
+    properties:
+      SBF_BROKER_CREDENTIALS_HASH: >
+        {
+           "broker-user": "sha256:oCuSbsUtZH2NTuvhY2i6jILB99fytysvHdVpIQgQHlM=:uoxcmFGIZBJjDOXAXfNM2bvG+LodD2KVxKRaHlnNs84="
+        }
+      SBF_SERVICE_CONFIG: >
+        {
+          "comsapdemoreuse": {
+            "extend_credentials": {
+              "shared": {
+                "uri": "~{demo-broker-srv-api/srv-url}/",
+                "endpoints": {
+                  "comsapdemoreuseservice": "~{demo-broker-srv-api/srv-url}/"
+                }
+              }
+            }
+          }
+        }
+      SBF_CATALOG_FILE: catalog.json
+      SBF_ENABLE_AUDITLOG: false
+    requires:
+      - name: demo-broker-uaa
+      - name: demo-broker-html5-repo-host
+      - name: demo-broker-srv-api
+
+
+resources:
+  # ----------------------- UAA SERVICE ------------------------
+  - name: demo-broker-uaa
+  # ------------------------------------------------------------
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: xsuaa
+      service-plan: broker
+      service-name: ${space}-demo-broker-uaa
+      path: xs-security.json
+      config:
+        xsappname: demo-broker-${org}-${space}
+        role-collections:
+          - name: Demo Reuse User (${space}) 
+            description: User Access
+            role-template-references: 
+              - '$XSAPPNAME.User'
+              - '$XSAPPNAME.Token_Exchange'
+          - name: Demo Reuse Administrator (${space})
+            description: Administrator Access
+            role-template-references: 
+              - '$XSAPPNAME.Admin'
+              - '$XSAPPNAME.Token_Exchange'
+
+
+  # -------------------- HTML REPO HOST SERVICE ---------------------
+  - name: demo-broker-html5-repo-host
+  # -----------------------------------------------------------------
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: html5-apps-repo
+      service-name: ${space}-demo-broker-html5-repo-host
+      service-plan: app-host

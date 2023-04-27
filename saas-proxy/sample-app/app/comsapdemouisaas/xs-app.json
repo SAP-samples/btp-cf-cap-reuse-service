@@ -1,0 +1,22 @@
+{
+  "welcomeFile": "/index.html",
+  "authenticationMethod": "route",
+  "logout": {
+    "logoutEndpoint": "/logout"
+  },
+  "routes": [
+    {
+      "source": "^/comsapdemoreuseservice/api(.*)$",
+      "target": "$1",
+      "authenticationType": "xsuaa",
+      "service": "com.sap.demo.reuse",
+      "endpoint": "comsapdemoreuseservice"
+    },
+    {
+      "source": "^(.*)$",
+      "target": "$1",
+      "service": "html5-apps-repo-rt",
+      "authenticationType": "xsuaa"
+    }
+  ]
+}

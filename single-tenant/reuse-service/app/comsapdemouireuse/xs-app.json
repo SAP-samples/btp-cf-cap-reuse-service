@@ -1,0 +1,18 @@
+{
+  "authenticationMethod": "route",
+  "routes": [
+    {
+      "source": "^/comsapdemoreuseservice/api(.*)$",
+      "target": "$1",
+      "authenticationType": "xsuaa",
+      "endpoint": "comsapdemoreuseservice",
+      "service": "com.sap.demo.reuse"
+    },
+    {
+      "source": "^(.*)$",
+      "target": "$1",
+      "service": "html5-apps-repo-rt",
+      "authenticationType": "xsuaa"
+    }
+  ]
+}

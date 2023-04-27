@@ -1,0 +1,8 @@
+{
+  "welcomeFile": "/comsapdemouiflp/",
+  "authenticationMethod": "route",
+  "logout": {
+    "logoutEndpoint": "/do/logout"
+  },
+  "routes": []
+}

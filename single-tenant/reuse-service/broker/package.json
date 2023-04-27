@@ -1,0 +1,18 @@
+{
+  "name": "demo-reuse-service",
+  "version": "1.0.0",
+  "description": "Demo Reuse Service",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "init": "npx gen-catalog-ids && npx hash-broker-password -b"
+  },
+  "repository": {},
+  "keywords": [
+    "Business",
+    "Service"
+  ],
+  "dependencies": {
+    "@sap/sbf": "^6.5.7"
+  }
+}

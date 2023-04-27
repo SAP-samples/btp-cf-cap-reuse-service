@@ -1,0 +1,117 @@
+{
+    "_version": "1.7.0",
+    "sap.app": {
+        "id": "com.sap.demo.ui.reuse",
+        "type": "component",
+        "i18n": "i18n/i18n.properties",
+        "applicationVersion": {
+            "version": "1.0.0"
+        },
+        "title": "{{appTitle}}",
+        "description": "{{appDescription}}",
+        "resources": "resources.json",
+        "dataSources": {
+            "mainService": {
+                "uri": "/comsapdemoreuseservice/api/v2/catalog/",
+                "type": "OData",
+                "settings": {
+					"odataVersion": "2.0"
+				}
+            }
+        }
+    },
+    "sap.cloud": {
+        "service": "com.sap.demo.reuse",
+        "public": true
+    },
+    "sap.ui": {
+        "technology": "UI5",
+        "fullWidth": true,
+        "icons": {
+            "icon": "",
+            "favIcon": "",
+            "phone": "",
+            "phone@2": "",
+            "tablet": "",
+            "tablet@2": ""
+        },
+        "deviceTypes": {
+            "desktop": true,
+            "tablet": true,
+            "phone": true
+        },
+        "supportedThemes": [
+            "sap_hcb",
+            "sap_belize",
+            "sap_fiori_3"
+        ]
+    },
+    "sap.ui5": {
+        "rootView": {
+            "viewName": "com.sap.demo.ui.reuse.view.App",
+            "type": "XML"
+        },
+        "dependencies": {
+            "minUI5Version": "1.108.6",
+            "libs": {
+                "sap.ui.core": {},
+                "sap.m": {},
+                "sap.ui.layout": {},
+                "sap.ushell": {}
+            }
+        },
+        "contentDensities": {
+            "compact": true,
+            "cozy": true
+        },
+        "models": {
+            "i18n": {
+                "type": "sap.ui.model.resource.ResourceModel",
+                "settings": {
+                    "bundleName": "com.sap.demo.ui.reuse.i18n.i18n"
+                }
+            },
+            "": {
+                "preload": true,
+                "dataSource": "mainService",
+                "settings": {
+                    "defaultBindingMode": "TwoWay",
+                    "defaultCountMode": "Inline",
+                    "refreshAfterChange": false
+                }
+              }
+        },
+        "routing": {
+            "config": {
+                "routerClass": "sap.m.routing.Router",
+                "viewType": "XML",
+                "async": true,
+                "viewPath": "com.sap.demo.ui.reuse.view",
+                "controlId": "app",
+                "controlAggregation": "pages",
+                "clearControlAggregation": false
+            },
+            "routes": [
+                {
+                    "pattern": "",
+                    "name": "App",
+                    "target": "App"
+                }
+            ],
+            "targets": {
+                "Home": {
+                    "viewName": "App",
+                    "viewLevel": 1,
+                    "viewId": "App"
+                }
+            }
+        },
+        "resources": {
+            "css": [
+                {
+                    "uri": "./css/style.css"
+                }
+            ]
+        }
+    }
+}
