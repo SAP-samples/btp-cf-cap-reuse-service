@@ -1,4 +1,5 @@
 # Business/Reuse Service Basics
+[![REUSE status](https://api.reuse.software/badge/github.com/SAP-samples/btp-cf-cap-reuse-service)](https://api.reuse.software/info/github.com/SAP-samples/btp-cf-cap-reuse-service)
 
 As the topic of Business/Reuse Services is relatively unknown within the SAP Community so far, the following section provides a short introduction to this topic. 
 
